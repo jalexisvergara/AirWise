@@ -1,0 +1,105 @@
+#include "thingProperties.h"
+#include <Arduino.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,16,2); // set the LCD address to 0x3F for a 16 chars and 2 line display
+int Gas_analog = A0;   // used for ESP32
+ 
+
+void setup() {
+  // Initialize serial and wait for port to open:
+  Serial.begin(115200);
+  // This delay gives the chance to wait for a Serial Monitor without blocking if none is found
+  delay(1500);
+  lcd.init(); // initialize the lcd
+  lcd.init();
+
+  // Defined in thingProperties.h
+  initProperties();
+
+  // Connect to Arduino IoT Cloud
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+
+  /*
+     The following function allows you to obtain more information
+     related to the state of network and IoT Cloud connection and errors
+     the higher number the more granular information you’ll get.
+     The default is 0 (only errors).
+     Maximum is 4
+  */
+  setDebugMessageLevel(2);
+  ArduinoCloud.printDebugInfo();
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("Aire: ");
+}
+
+void loop() {
+  ArduinoCloud.update();
+  // Your code here
+  int gassensorAnalog = analogRead(Gas_analog);
+  
+
+  if (gassensorAnalog < 200) {
+    
+    valor_aire = gassensorAnalog;
+    calidad_aire = "BUENO";
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Calidad Aire: ");
+    lcd.setCursor(0,1);
+    Serial.println(calidad_aire);
+    lcd.print(calidad_aire);
+    delay(1000);
+    
+  } else if (gassensorAnalog < 400) {
+    valor_aire = gassensorAnalog;
+    calidad_aire = "REGULAR";
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Calidad Aire: ");
+    lcd.setCursor(0,1);
+    Serial.println(calidad_aire);
+    lcd.print(calidad_aire);
+    delay(1000);
+  } else {
+    valor_aire = gassensorAnalog;
+    calidad_aire = "MALO";
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Calidad Aire: ");
+    lcd.setCursor(0,1);
+    lcd.print(calidad_aire);
+    delay(1000);
+  }
+
+}
+
+
+
+/*
+  Since CO2 is READ_WRITE variable, onCO2Change() is
+  executed every time a new value is received from IoT Cloud.
+*/
+void onCalidadAireChange()  {
+  // Add your code here to act upon CO2 change
+}
+
+/*
+  Since Temperatura is READ_WRITE variable, onTemperaturaChange() is
+  executed every time a new value is received from IoT Cloud.
+*/
+void onTemperaturaChange()  {
+  // Add your code here to act upon Temperatura change
+}
+
+
+/*
+  Since ValorAire is READ_WRITE variable, onValorAireChange() is
+  executed every time a new value is received from IoT Cloud.
+*/
+void onValorAireChange()  {
+  // Add your code here to act upon ValorAire change
+}
